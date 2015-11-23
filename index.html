@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+body {
+		width: 100%; 
+		height: 100%;
+		background-color: #202020;
+} 
+
+div {
+	    position:absolute; 
+		height:100%; 
+		width:100%;
+		display: table;
+}
+
+h1 {
+	    display: table-cell;
+		vertical-align: middle;
+		text-align:center;
+		color: #FFFFFF;
+}
+</style>
+	<script src="webOSjs-0.1.0/webOS.js" charset="utf-8"></script>
+	<script type="text/javascript">
+	   //sample code for calling LS2 API
+       var lunaReq= webOS.service.request("luna://com.palm.systemservice",
+        {
+            method:"clock/getTime",
+            parameters:{},
+            onSuccess: function (args) {
+				console.log("UTC:", args.utc);
+            },
+            onFailure: function (args) {
+            }
+        });
+
+
+
+       // One-time call
+	webOS.service.request("luna://com.webos.service.tv.systemproperty", {
+    method: "getSystemInfo",
+    parameters: { 
+        "keys": ["modelName", "firmwareVersion", "UHD", "sdkVersion"]
+    },
+    onComplete: function (inResponse) {
+        var isSucceeded = inResponse.returnValue;
+ 
+        if (isSucceeded){
+            console.log("Result: " + JSON.stringify(inResponse));
+            // To-Do something
+        } else {
+            console.log("Failed to get TV device information");
+            // To-Do something
+            return;
+        }
+    }
+});
+  
+// Subscription
+var subscriptionHandle;
+  
+subscriptionHandle = webOS.service.request("luna://com.webos.service.tv.systemproperty", {
+    method: "getSystemInfo",
+    parameters: { 
+        "keys": ["modelName", "boardType", "firmwareVersion", "UHD", "sdkVersion"],
+        "subscribe": true
+    },
+    onComplete: function (inResponse) {
+        var isSucceeded = inResponse.returnValue;
+        
+        if (typeof(inResponse.subscribed) != 'undefined') {
+            if (!inResponse.subscribed) {
+                console.log("Failed to subscribe TV device information");
+                return;
+            }
+        }
+ 
+        if (isSucceeded){
+            console.log("Result: " + JSON.stringify(inResponse));
+            Log("Result: " + JSON.stringify(inResponse));
+            // To-Do something
+        } else {
+            console.log("Failed to TV device information");
+            // To-Do something
+            return;
+        }
+    }
+});
+// If you need to unsubscribe the data, use cancel() method as below
+ //subscriptionHandle.cancel();
+  function Log(msg)
+  {
+      var o= document.getElementById('logger');
+      o.innerHTML += msg + "</br>";
+  }
+
+	</script>
+</head>
+<body>
+	<div> 
+		<h1>Hello World!</h1>
+	</div>
+	 <div id="logger" style="width:1000px; height:400px; overflow:scroll; background-color:gray;"></div>
+</body>
+</html>
